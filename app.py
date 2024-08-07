@@ -1,16 +1,17 @@
-from flask import Flask, request, send_from_directory, render_template
+from flask import Flask, request, Response, render_template, jsonify
 import instaloader
-import os
 import requests
+import logging
+import io
 
 app = Flask(__name__)
 
-# Cria o diretório para os vídeos se não existir
-DOWNLOAD_FOLDER = 'downloads'
-os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+# Configuração do logging
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/')
 def index():
+    # Renderiza o template HTML para a página principal
     return render_template('index.html')
 
 @app.route('/download', methods=['POST'])
@@ -21,30 +22,47 @@ def download():
     try:
         # Obtém o shortcode da URL
         shortcode = url.split('/')[-2]
+        logging.debug(f"Shortcode extraído: {shortcode}")
 
         # Carrega o post usando o shortcode
         post = instaloader.Post.from_shortcode(loader.context, shortcode)
+        logging.debug(f"URL do post: {post.url}")
 
-        # Define o caminho do arquivo
-        filename = f"{shortcode}.mp4"
-        filepath = os.path.join(DOWNLOAD_FOLDER, filename)
-
-        # Baixa o vídeo
+        # Verifica se o post é um vídeo
         if post.is_video:
             video_url = post.video_url
+            logging.debug(f"URL do vídeo: {video_url}")
+
+            # Faz o download do vídeo
             response = requests.get(video_url, stream=True)
+            
+            # Verifica se a resposta do servidor é bem-sucedida (código 200)
             if response.status_code == 200:
-                with open(filepath, 'wb') as file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        file.write(chunk)
-                return send_from_directory(DOWNLOAD_FOLDER, filename, as_attachment=True)
+                # Cria um objeto de bytes para o vídeo
+                video_stream = io.BytesIO(response.content)
+                
+                # Define o nome do arquivo para o download
+                filename = f"{shortcode}.mp4"
+
+                # Retorna o vídeo como uma resposta de download
+                return Response(
+                    video_stream,
+                    mimetype='video/mp4',
+                    headers={"Content-Disposition": f"attachment;filename={filename}"}
+                )
             else:
-                return "Erro ao baixar o vídeo. Status: " + str(response.status_code)
+                error_msg = f"Erro ao baixar o vídeo. Status: {response.status_code}. URL: {video_url}"
+                logging.error(error_msg)
+                return jsonify({"success": False, "message": error_msg})
         else:
-            return "O link fornecido não é um vídeo."
+            error_msg = "O link fornecido não é um vídeo."
+            logging.error(error_msg)
+            return jsonify({"success": False, "message": error_msg})
 
     except Exception as e:
-        return str(e)
+        error_msg = f"Erro: {str(e)}. URL: {url}"
+        logging.error(error_msg)
+        return jsonify({"success": False, "message": error_msg})
 
 if __name__ == '__main__':
     app.run(debug=True)

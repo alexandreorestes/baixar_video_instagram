@@ -40,3 +40,37 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+form {
+    margin: 20px 0;
+}
+
+#message {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+#progress {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+#progress p {
+    margin: 0;
+}

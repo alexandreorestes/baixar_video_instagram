@@ -9,6 +9,10 @@ app = Flask(__name__)
 # Configuração do logging
 logging.basicConfig(level=logging.DEBUG)
 
+# Configurações do Instaloader
+USERNAME = 'xandre.tk@gmail.com'  # Substitua com seu nome de usuário do Instagram
+PASSWORD = 'salmos3729'    # Substitua com sua senha do Instagram
+
 @app.route('/')
 def index():
     # Renderiza o template HTML para a página principal
@@ -20,6 +24,10 @@ def download():
     loader = instaloader.Instaloader()
     
     try:
+        # Faz login no Instagram
+        loader.login(USERNAME, PASSWORD)
+        logging.debug("Autenticado com sucesso")
+
         # Obtém o shortcode da URL
         shortcode = url.split('/')[-2]
         logging.debug(f"Shortcode extraído: {shortcode}")

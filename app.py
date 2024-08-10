@@ -59,15 +59,18 @@ def download():
                     headers={"Content-Disposition": f"attachment;filename={filename}"}
                 )
             else:
+                # Se o download falhar, retorna uma mensagem de erro
                 error_msg = f"Erro ao baixar o vídeo. Status: {response.status_code}. URL: {video_url}"
                 logging.error(error_msg)
                 return jsonify({"success": False, "message": error_msg})
         else:
+            # Se o post não for um vídeo, retorna uma mensagem de erro
             error_msg = "O link fornecido não é um vídeo."
             logging.error(error_msg)
             return jsonify({"success": False, "message": error_msg})
 
     except Exception as e:
+        # Captura qualquer outra exceção e retorna uma mensagem de erro
         error_msg = f"Erro: {str(e)}. URL: {url}"
         logging.error(error_msg)
         return jsonify({"success": False, "message": error_msg})

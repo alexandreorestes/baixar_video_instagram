@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>Baixar Vídeo do Instagram</h1>
-        <form id="downloadForm">
+        <form id="downloadForm" action="{{ url_for('download') }}" method="post">
             <label for="url">URL do Vídeo:</label>
             <input type="text" id="url" name="url" required>
             <button type="submit">Baixar Vídeo</button>
@@ -19,6 +19,8 @@
             <p>Preparando seu vídeo, por favor aguarde...</p>
             <p id="countdown">0</p>
         </div>
+        <br>
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

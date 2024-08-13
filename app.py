@@ -1,10 +1,12 @@
-from flask import Flask, request, Response, render_template, jsonify
+from flask import Flask, request, Response, render_template, jsonify, session, redirect, url_for
 import instaloader
 import requests
 import logging
 import io
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = 'sua_chave_secreta_aqui'  # Substitua por uma chave secreta forte
 
 # Configuração do logging
 logging.basicConfig(level=logging.DEBUG)
@@ -13,12 +15,40 @@ logging.basicConfig(level=logging.DEBUG)
 USERNAME = 'xandre.tk@gmail.com'  # Substitua com seu nome de usuário do Instagram
 PASSWORD = 'salmos3729'    # Substitua com sua senha do Instagram
 
+# Função decoradora para verificar se o usuário está logado
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
+@login_required
 def index():
     # Renderiza o template HTML para a página principal
     return render_template('index.html')
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username == USERNAME and password == PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error='Credenciais inválidas')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
 @app.route('/download', methods=['POST'])
+@login_required
 def download():
     url = request.form['url']
     loader = instaloader.Instaloader()

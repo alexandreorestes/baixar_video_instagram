@@ -12,8 +12,8 @@ app.secret_key = 'sua_chave_secreta_aqui'  # Substitua por uma chave secreta for
 logging.basicConfig(level=logging.DEBUG)
 
 # Configurações do Instaloader
-USERNAME = 'xandre.tk@gmail.com'  # Substitua com seu nome de usuário do Instagram
-PASSWORD = 'salmos3729'    # Substitua com sua senha do Instagram
+USERNAME = ''  # Substitua com seu nome de usuário do Instagram
+PASSWORD = ''    # Substitua com sua senha do Instagram
 
 # Função decoradora para verificar se o usuário está logado
 def login_required(f):
